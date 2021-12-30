@@ -80,6 +80,42 @@ class FluxAndMonoGeneratorServiceTest {
 
 
     @Test
+    void explore_concat()  {
+        //given
+
+        //when
+        var concatFlux = fluxAndMonoSchedulersService.explore_concat();
+
+        //then
+        StepVerifier.create(concatFlux)
+                .expectNext("A","B","C","D","E","F")
+                .verifyComplete();
+    }
+
+    @Test
+    void explore_zip() {
+        //given
+        //when
+        var value = fluxAndMonoSchedulersService.explore_zip();
+        //then
+        StepVerifier.create(value)
+                .expectNext("AD","BE","CF")
+                .verifyComplete();
+
+    }
+
+    @Test
+    void explore_zip_1() {
+        //given
+        //when
+        var value = fluxAndMonoSchedulersService.explore_zip_1();
+        //then
+        StepVerifier.create(value)
+                .expectNext("AD14","BE25","CF36")
+                .verifyComplete();
+
+    }
+    @Test
     void nameMono() {
         //given
 

@@ -74,6 +74,34 @@ public class FluxAndMonoSchedulersService {
                 .delayElements(Duration.ofMillis(delay));
     }
 
+    public Flux<String> explore_concat() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+        return Flux.concat(abcFlux, defFlux);
+    }
+
+    public Flux<String> explore_concatwith() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+        return abcFlux.concatWith(defFlux);
+    }
+
+
+    public Flux<String> explore_zip() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+        return Flux.zip(abcFlux, defFlux, (first, second) -> first+second); // AD, BE, CF
+    }
+
+    public Flux<String> explore_zip_1() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+        var _123Flux = Flux.just("1","2","3");
+        var _456Flux = Flux.just("4","5","6");
+        return Flux.zip(abcFlux, defFlux,_123Flux,_456Flux)
+                .map(t4 -> t4.getT1()+t4.getT2()+t4.getT3()+t4.getT4())
+                .log(); //AD14 , BE25, CF36
+    }
 
     // 임의의 이름을 보유할 문자열의 모노를 반환
     public Mono<String> nameNono() {
