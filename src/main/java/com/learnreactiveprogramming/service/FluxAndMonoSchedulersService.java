@@ -3,7 +3,10 @@ package com.learnreactiveprogramming.service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Function;
 
 import static com.learnreactiveprogramming.util.CommonUtil.delay;
 
@@ -15,6 +18,62 @@ public class FluxAndMonoSchedulersService {
         return Flux.fromIterable(List.of("alex", "ben", "chloe"))
                 .log();
     }
+
+    public Flux<String> namesFlux_map(int stringLength) {
+        return Flux.fromIterable(List.of("alex","ben","chloe"))
+                .map(String::toUpperCase)
+                // .map(s->s.toUpperCase())
+                .filter(s->s.length()>stringLength)
+                .map(s-> s.length() + "-"  + s) //4-ALEX, 5-CHOLE
+                .log();
+    }
+
+    // stream은 불변의 특성을 가지고 있음음
+   public Flux<String> namesFlux_immutability() {
+        var namesFlux = Flux.fromIterable(List.of("alex","ben","chloe"));
+
+        namesFlux.map(String::toUpperCase);
+
+        return namesFlux;
+    }
+
+    // flatMap : Flux를 평면화한 다음 개별 요소를 반환
+    public Flux<String> namesFlux_flatmap(int stringLength) {
+        return Flux.fromIterable(List.of("alex","ben","chloe"))
+                .map(String::toUpperCase)
+                // .map(s->s.toUpperCase())
+                .filter(s->s.length()>stringLength)
+                // ALEX,CHLOE -> A,L,E,X,C,H,L,O,E
+                .flatMap(this::splitString) // A,L,E,X,C,H,L,O,E
+                //.flatMpa(s->splitString(s))
+                .log();
+    }
+
+    // ALEX -> Flux(A,L,E,X)
+    public Flux<String> splitString(String name) {
+        var charArray = name.split("");
+        return Flux.fromArray(charArray);
+    }
+
+    // 비동기
+    public Flux<String> namesFlux_flatmap_async(int stringLength) {
+        return Flux.fromIterable(List.of("alex","ben","chloe"))
+                .map(String::toUpperCase)
+                // .map(s->s.toUpperCase())
+                .filter(s->s.length()>stringLength)
+                // ALEX,CHLOE -> A,L,E,X,C,H,L,O,E
+                .flatMap(this::splitString_withDelay) // A,L,E,X,C,H,L,O,E
+                //.flatMpa(s->splitString(s))
+                .log();
+    }
+
+    public Flux<String> splitString_withDelay(String name) {
+        var charArray = name.split("");
+        var delay = new Random().nextInt(1000);
+        return Flux.fromArray(charArray)
+                .delayElements(Duration.ofMillis(delay));
+    }
+
 
     // 임의의 이름을 보유할 문자열의 모노를 반환
     public Mono<String> nameNono() {
